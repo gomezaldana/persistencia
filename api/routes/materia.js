@@ -7,10 +7,8 @@ router.get("/", (req, res, next) => {
   models.materia
     .findAll({
       attributes: ["id", "nombre","id_carrera"],
-      /////////se agrega la asociacion 
-      include:[{as:'Carrera-Relacionada', model:models.carrera, attributes: ["id","nombre"]}],
-      include:[{as:'Profesor-Relacionado', model:models.profesor, attributes: ["id","nombre","apellido"]}] //ASOCIACION
-      ////////////////////////////////
+      include:[{as:'Carrera-Relacionada', model:models.carrera, attributes: ["id","nombre"]}, 
+      {as:'Profesor-Relacionado', model:models.profesor, attributes:["id","nombre","apellido"]}],
     })
     .then(materia => res.send(materia))
     .catch(() => res.sendStatus(500));
