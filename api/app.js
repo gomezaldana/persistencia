@@ -20,6 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/mat', materiaRouter);
 app.use('/car', carrerasRouter);
+app.use('/pro', profesorRouter);
 
 
 // catch 404 and forward to error handler
