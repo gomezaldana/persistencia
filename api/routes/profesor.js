@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
 var models = require("../models");
-const profesor = require("../models/profesor");
 
 router.get("/", (req, res) => {
   console.log("Esto es un mensaje para ver en consola");
@@ -44,7 +43,7 @@ const findProfesor = (id, { onSuccess, onNotFound, onError }) => {
 };
 
 router.get("/:id", (req, res) => {
-  findMateria(req.params.id, {
+  findProfesor(req.params.id, {
     onSuccess: profesor => res.send(profesor),
     onNotFound: () => res.sendStatus(404),
     onError: () => res.sendStatus(500)
