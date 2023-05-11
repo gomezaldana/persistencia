@@ -12,13 +12,13 @@ module.exports = (sequelize, DataTypes) => {
     {
       as: 'materia',                 // nombre de mi relacion
       foreignKey: 'id_carrera'       // campo con el que voy a igualar 
-    })//,
-/*
+    }),
+
     carrera.belongsTo(models.facultad,
       {
         as:'Facultad-Relacionada',
         foreignKey: 'id_facultad'
-      })*/
+      })
   };
 
   return carrera;
