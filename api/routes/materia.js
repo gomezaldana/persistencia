@@ -8,7 +8,8 @@ router.get("/", (req, res, next) => {
     .findAll({
       attributes: ["id", "nombre","id_carrera"],
       /////////se agrega la asociacion 
-      include:[{as:'Carrera-Relacionada', model:models.carrera, attributes: ["id","nombre"]}]
+      include:[{as:'Carrera-Relacionada', model:models.carrera, attributes: ["id","nombre"]}],
+      include:[{as:'Profesor-Relacionado', model:models.profesor, attributes: ["id","nombre","apellido"]}] //ASOCIACION
       ////////////////////////////////
     })
     .then(materia => res.send(materia))
