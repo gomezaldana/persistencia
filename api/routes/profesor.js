@@ -6,7 +6,7 @@ router.get("/", (req, res) => {
   console.log("Esto es un mensaje para ver en consola");
   models.profesor
     .findAll({
-      attributes: ["id", "nombre","id_materia"]
+      attributes: ["id", "nombre", "apellido","id_materia"]
     })
     .then(profesor => res.send(profesor))
     .catch(() => res.sendStatus(500));
@@ -18,6 +18,7 @@ router.post("/", (req, res) => {
   models.profesor
     .create({ 
         nombre: req.body.nombre,
+        apellido: req.body.apellido,
         id_materia: req.body.id_materia
     })
     .then(profesor => res.status(201).send({ id: profesor.id }))
@@ -35,7 +36,7 @@ router.post("/", (req, res) => {
 const findProfesor = (id, { onSuccess, onNotFound, onError }) => {
   models.profesor
     .findOne({
-      attributes: ["id", "nombre", "id_materia"],
+      attributes: ["id", "nombre", "apellido", "id_materia"],
       where: { id }
     })
     .then(profesor => (profesor ? onSuccess(profesor) : onNotFound()))
@@ -53,7 +54,7 @@ router.get("/:id", (req, res) => {
 router.put("/:id", (req, res) => {
   const onSuccess = profesor =>
   profesor
-      .update({ nombre: req.body.nombre }, { fields: ["nombre"] })
+      .update({ nombre: req.body.nombre }, { fields: ["nombre"] }) //ACTUALIZAR APELLIDO COMO ES
       .then(() => res.sendStatus(200))
       .catch(error => {
         if (error == "SequelizeUniqueConstraintError: Validation error") {
