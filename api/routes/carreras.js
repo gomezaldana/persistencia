@@ -7,7 +7,11 @@ router.get("/", (req, res, next) => {
   models.carrera
     .findAll({
       attributes: ["id", "nombre"],
-      include:[{as:'materia', model:models.materia, attributes: ["id","nombre"]}] //ASOCIACION
+      include:[
+        {as:'materia', model:models.materia, attributes: ["id","nombre"]},
+        {as:'facultad', model:models.facultad, attributes: ["id","nombre","director"]}
+
+    ] //ASOCIACION
     })
     .then(carreras => res.send(carreras))
     .catch(() => res.sendStatus(500));
