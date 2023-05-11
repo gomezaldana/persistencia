@@ -24,7 +24,7 @@ router.post("/", (req, res) => {
     .then(profesor => res.status(201).send({ id: profesor.id }))
     .catch(error => {
       if (error == "SequelizeUniqueConstraintError: Validation error") {
-        res.status(400).send('Bad request: existe otra materia con el mismo nombre')
+        res.status(400).send('Bad request: existe otro profesor con el mismo nombre')
       }
       else {
         console.log(`Error al intentar insertar en la base de datos: ${error}`)
@@ -58,7 +58,7 @@ router.put("/:id", (req, res) => {
       .then(() => res.sendStatus(200))
       .catch(error => {
         if (error == "SequelizeUniqueConstraintError: Validation error") {
-          res.status(400).send('Bad request: existe otra materia con el mismo nombre')
+          res.status(400).send('Bad request: existe otro profesor con el mismo nombre')
         }
         else {
           console.log(`Error al intentar actualizar la base de datos: ${error}`)

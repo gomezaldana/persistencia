@@ -5,7 +5,20 @@ module.exports = (sequelize, DataTypes) => {
     id_carrera: DataTypes.INTEGER
   }, {});
   materia.associate = function(models) {
-    // associations can be defined here
+    
+    //asociacion a carrera (pertenece a:)
+  	materia.belongsTo(models.carrera// modelo al que pertenece
+    ,{
+      as : 'Carrera-Relacionada',  // nombre de mi relacion
+      foreignKey: 'id_carrera'     // campo con el que voy a igualar
+    }),
+
+    materia.hasMany(models.profesor
+      ,{
+        as : 'Profesor-Relacionado',
+        foreignKey: 'id_materia'
+      })
+
   };
   return materia;
 };
