@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var carrerasRouter = require('./routes/carreras');
 var materiaRouter = require('./routes/materia');
+var profesorRouter = require('./routes/profesor');
 
 var app = express();
 
