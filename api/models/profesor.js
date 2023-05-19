@@ -5,7 +5,6 @@ module.exports = (sequelize, DataTypes) => {
     apellido: DataTypes.STRING,
     id_materia: DataTypes.INTEGER
   }, {});
-  profesor.associate = function(models) {
     
     //codigo de asociacion  (tiene muchos:)
     profesor.associate = function(models) {
@@ -16,6 +15,5 @@ module.exports = (sequelize, DataTypes) => {
       })
     };
 
-  };
   return profesor;
 };

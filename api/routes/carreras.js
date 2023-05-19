@@ -6,12 +6,13 @@ router.get("/", (req, res, next) => {
   console.log("Esto es un mensaje para ver en consola");
   models.carrera
     .findAll({
-      attributes: ["id", "nombre"],
-      include:[
-        {as:'materia', model:models.materia, attributes: ["id","nombre"]}
-    ] //ASOCIACION
+      attributes: ["id", "nombre"],//,"id_facultad" ni bien pongo esto, me tira error
+      include:[//{as:'Facultad-Relacionada', model:models.facultad,attributes:["id","nombre","director"]}, si agrego esta linea, tambien me tira error
+        {as:'materia', model:models.materia, attributes: ["id","nombre"]}]//,
+    //  {as:'Facultad-Relacionada', model:models.facultad,attributes:["id","nombre","director"]}
+     //ASOCIACION
     })
-    .then(carreras => res.send(carreras))
+    .then(carrera => res.send(carrera))
     .catch(() => res.sendStatus(500));
 });
 
