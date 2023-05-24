@@ -6,8 +6,8 @@ router.get("/", (req, res, next) => {
   console.log("Esto es un mensaje para ver en consola");
   models.carrera
     .findAll({
-      attributes: ["id", "nombre"],//,"id_facultad" ni bien pongo esto, me tira error
-      include:[//{as:'Facultad-Relacionada', model:models.facultad,attributes:["id","nombre","director"]}, si agrego esta linea, tambien me tira error
+      attributes: ["id", "nombre","id_facultad"],//,"id_facultad" ni bien pongo esto, me tira error
+      include:[{as:'Facultad-Relacionada', model:models.facultad,attributes:["id","nombre","director"]},// si agrego esta linea, tambien me tira error
         {as:'materia', model:models.materia, attributes: ["id","nombre"]}]//,
     //  {as:'Facultad-Relacionada', model:models.facultad,attributes:["id","nombre","director"]}
      //ASOCIACION
@@ -18,7 +18,10 @@ router.get("/", (req, res, next) => {
 
 router.post("/", (req, res) => {
   models.carrera
-    .create({ nombre: req.body.nombre })
+    .create({ 
+      nombre: req.body.nombre,
+      id_facultad: req.body.id_facultad
+     })
     .then(carrera => res.status(201).send({ id: carrera.id }))
     .catch(error => {
       if (error == "SequelizeUniqueConstraintError: Validation error") {
