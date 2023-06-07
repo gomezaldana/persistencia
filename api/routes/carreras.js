@@ -3,9 +3,12 @@ var router = express.Router();
 var models = require("../models");
 
 router.get("/", (req, res, next) => {
+  const desde = Number(req.query.desde) || 0;
+  const hasta = Number(req.query.hasta) || 5;
   console.log("Esto es un mensaje para ver en consola");
   models.carrera
     .findAll({
+      offset: desde, limit: hasta,
       attributes: ["id", "nombre","id_facultad"],//,"id_facultad" ni bien pongo esto, me tira error
       include:[{as:'Facultad-Relacionada', model:models.facultad,attributes:["id","nombre","director"]},// si agrego esta linea, tambien me tira error
         {as:'materia', model:models.materia, attributes: ["id","nombre"]}]//,

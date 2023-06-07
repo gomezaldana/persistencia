@@ -3,9 +3,12 @@ var router = express.Router();
 var models = require("../models");
 
 router.get("/", (req, res, next) => {
+  const desde = Number(req.query.desde) || 0;
+  const hasta = Number(req.query.hasta) || 5;
   console.log("Esto es un mensaje para ver en consola");
   models.facultad
     .findAll({
+      offset: desde, limit: hasta,
       attributes: ["id", "nombre", "director"],
       include:[{as:'mi_carrera', model:models.carrera, attributes: ["id","nombre"]}] //ASOCIACION      
     })
