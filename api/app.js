@@ -1,5 +1,10 @@
 var createError = require('http-errors');
 var express = require('express');
+//swagger
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/configSwagger');
+
+//
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
@@ -9,6 +14,9 @@ var profesorRouter = require('./routes/profesor');
 var facultadRouter = require('./routes/facultad');
 
 var app = express();
+
+//swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -41,5 +49,11 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+/*
+app.listen(3000, () => {
+  console.log('Servidor iniciado en el puerto 3000');
+});
+*/
 
 module.exports = app;
