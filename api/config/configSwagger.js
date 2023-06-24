@@ -4,14 +4,17 @@ const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'API Documentation',
+      title: 'API Documentation EDP',
       version: '1.0.0',
       description: 'Documentación de la API',
     },
   },
-  apis: ['./routes/car','./routes/pro','./routes/mat','./routes/car'], // Ruta a los archivos que contienen tus rutas
+  apis: ["./routes/*.js"], // Ruta a los archivos que contienen tus rutas
 };
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
+
+///////////////
+
 
 module.exports = swaggerSpec;

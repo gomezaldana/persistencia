@@ -8,15 +8,18 @@ const swaggerSpec = require('./config/configSwagger');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var carrerasRouter = require('./routes/carreras');
-var materiaRouter = require('./routes/materia');
-var profesorRouter = require('./routes/profesor');
-var facultadRouter = require('./routes/facultad');
 
 var app = express();
 
 //swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+var carrerasRouter = require('./routes/carreras');
+var materiaRouter = require('./routes/materia');
+var profesorRouter = require('./routes/profesor');
+var facultadRouter = require('./routes/facultad');
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
