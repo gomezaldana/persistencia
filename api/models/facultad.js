@@ -6,11 +6,10 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
 
   facultad.associate = function (models) {
-    //codigo de asociacion  (tiene muchos:)
-    facultad.hasMany(models.carrera,  // Modelo al que pertenece
+    facultad.hasMany(models.carrera,  
       {
-        as: 'Carrera-Relacionada',                 // nombre de mi relacion
-        foreignKey: 'id_facultad'       // campo con el que voy a igualar 
+        as: 'Carrera-Relacionada',                 
+        foreignKey: 'id_facultad'       
       })
   };
 
