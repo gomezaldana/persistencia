@@ -2,6 +2,61 @@ var express = require("express");
 var router = express.Router();
 var models = require("../models");
 
+/**
+ * @swagger
+ * /pro:
+ *   get:
+ *     summary: Obtiene los profesores almacenados en la base de datos
+ *     parameters:
+ *       - name: desde
+ *         in: query
+ *         description: Número de página
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *       - name: hasta
+ *         in: query
+ *         description: Tamaño de página
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *     tags:
+ *       - Profesores
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     description: ID del profesor
+ *                   nombre:
+ *                     type: string
+ *                     description: Nombre del profesor
+ *                   apellido:
+ *                     type: string
+ *                     description: Apellido del profesor
+ *                   id_materia:
+ *                     type: integer
+ *                     description: id de la materia a la que esta relacionado
+ *                   materia:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: ID de la materia
+ *                       nombre:
+ *                         type: string
+ *                         description: Nombre de la materia
+ *       500:
+ *         description: Error interno del servidor
+ */
+
 router.get("/", (req, res, next) => {
   const desde = Number(req.query.desde) || 0;
   const hasta = Number(req.query.hasta) || 5;
@@ -16,8 +71,54 @@ router.get("/", (req, res, next) => {
     .catch(() => res.sendStatus(500));
 });
 
+/**
+ * @swagger
+ * /pro:
+ *   post:
+ *     summary: Inserta la información de un nuevo profesor en la base de datos
+ *     tags: [Profesores]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *                 description: Nombre del profesor
+ *               apellido:
+ *                 type: string
+ *                 description: Apellido del profesor
+ *               id_materia:
+ *                 type: integer
+ *                 description: ID de la materia a la que está asociada
+ *     responses:
+ *       201:
+ *         description: Creado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   description: ID del profesor creado
+ *       400:
+ *         description: Solicitud incorrecta
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
+ *       500:
+ *         description: Error interno del servidor
+ */
+ 
 router.post("/", (req, res) => {
-  //console.log(`Valor de id_carrera en req.body: ${req.body.id_carrera}`);
   console.log(req.body.id_materia);
   models.profesor
     .create({ 
@@ -37,6 +138,42 @@ router.post("/", (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /pro/{id}:
+ *   get:
+ *     summary: Obtiene un profesor por su ID
+ *     tags:
+ *       - Profesores
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   description: ID del profesor
+ *                 nombre:
+ *                   type: string
+ *                   description: Nombre del profesor
+ *                 id_materia:
+ *                   type: string
+ *                   description: ID de la materia asociada al profesor buscado
+ *       404:
+ *         description: Not Found
+ *       500:
+ *         description: Error interno del servidor
+ */
+
 const findProfesor = (id, { onSuccess, onNotFound, onError }) => {
   models.profesor
     .findOne({
@@ -54,6 +191,48 @@ router.get("/:id", (req, res) => {
     onError: () => res.sendStatus(500)
   });
 });
+
+/**
+ * @swagger
+ * /pro/{id}:
+ *   put:
+ *     summary: Actualiza un profesor por su ID
+ *     tags:
+ *       - Profesores
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *                 description: Nuevo nombre del profesor
+ *     responses:
+ *       200:
+ *         description: OK
+ *       400:
+ *         description: Solicitud incorrecta
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
+ *       404:
+ *         description: Not Found
+ *       500:
+ *         description: Error interno del servidor
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID del profesor a actualizar
+ *         required: true
+ *         type: integer
+*/
 
 router.put("/:id", (req, res) => {
   const onSuccess = profesor =>
@@ -75,6 +254,27 @@ router.put("/:id", (req, res) => {
     onError: () => res.sendStatus(500)
   });
 });
+
+/**
+ * @swagger
+ * /pro/{id}:
+ *   delete:
+ *     summary: Elimina un profesor por su ID en la base de datos
+ *     tags: [Profesores]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: OK
+ *       404:
+ *         description: Not Found
+ *       500:
+ *         description: Error interno del servidor
+ */
 
 router.delete("/:id", (req, res) => {
   const onSuccess = profesor =>

@@ -7,9 +7,22 @@ var sw= require("../config/configSwagger");
  * @swagger
  * /car:
  *   get:
- *     summary: Obtiene las carreras
+ *     summary: Obtiene las carreras almacenas en la base de datos
+ *     parameters:
+ *       - name: desde
+ *         in: query
+ *         description: Número de página
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *       - name: hasta
+ *         in: query
+ *         description: Tamaño de página
+ *         schema:
+ *           type: integer
+ *           default: 5
  *     tags:
- *       - [Carreras]
+ *       - Carreras
  *     responses:
  *       200:
  *         description: OK
@@ -57,22 +70,7 @@ var sw= require("../config/configSwagger");
  *                           description: ID de la facultad de la materia
  *       500:
  *         description: Error interno del servidor
- *     parameters:
- *       - name: desde
- *         in: query
- *         description: Número de página
- *         schema:
- *           type: integer
- *           default: 0
- *       - name: hasta
- *         in: query
- *         description: Tamaño de página
- *         schema:
- *           type: integer
- *           default: 10
  */
-
-
 
 router.get("/", (req, res, next) => {
   const desde = Number(req.query.desde) || 0;
@@ -88,7 +86,6 @@ router.get("/", (req, res, next) => {
     .then(carrera => res.send(carrera))
     .catch(() => res.sendStatus(500));
 });
-
 
 /**
  * @swagger
@@ -156,7 +153,7 @@ router.post("/", (req, res) => {
  * @swagger
  * /car/{id}:
  *   get:
- *     summary: Busca una carrera por su ID
+ *     summary: Obtiene una carrera por su ID
  *     tags:
  *       - Carreras
  *     parameters:
@@ -180,7 +177,7 @@ router.post("/", (req, res) => {
  *                   type: string
  *                   description: Nombre de la carrera
  *                 id_facultad:
-                     type: string
+ *                   type: string
  *                   description: ID de la facultad asociada a la carrera buscada
  *       404:
  *         description: Not Found
@@ -198,19 +195,21 @@ const findCarrera = (id, { onSuccess, onNotFound, onError }) => {
     .catch(() => onError());
 };
 
+router.get("/:id", (req, res) => {
+  findCarrera(req.params.id, {
+    onSuccess: carrera => res.send(carrera),
+    onNotFound: () => res.sendStatus(404),
+    onError: () => res.sendStatus(500)
+  });
+});
+
 /**
  * @swagger
- * /carrera/{id}:
+ * /car/{id}:
  *   put:
  *     summary: Actualiza una carrera por su ID
  *     tags:
  *       - Carreras
- *     parameters:
- *       - name: id
- *         in: path
- *         description: ID de la carrea a actualizar
- *         required: true
- *         type: integer
  *     requestBody:
  *       required: true
  *       content:
@@ -235,25 +234,23 @@ const findCarrera = (id, { onSuccess, onNotFound, onError }) => {
  *                   type: string
  *                   description: Mensaje de error
  *       404:
- *         description: Carrera no encontrada
+ *         description: Not found
  *       500:
  *         description: Error interno del servidor
- */
-
-router.get("/:id", (req, res) => {
-  findCarrera(req.params.id, {
-    onSuccess: carrera => res.send(carrera),
-    onNotFound: () => res.sendStatus(404),
-    onError: () => res.sendStatus(500)
-  });
-});
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID de la carrea a actualizar
+ *         required: true
+ *         type: integer
+*/
 
 router.put("/:id", (req, res) => {
   const onSuccess = carrera =>
-    carrera
-      .update({ nombre: req.body.nombre }, { fields: ["nombre"] })
-      .then(() => res.sendStatus(200))
-      .catch(error => {
+  carrera
+  .update({ nombre: req.body.nombre }, { fields: ["nombre"] })
+  .then(() => res.sendStatus(200))
+  .catch(error => {
         if (error == "SequelizeUniqueConstraintError: Validation error") {
           res.status(400).send('Bad request: existe otra carrera con el mismo nombre')
         }
@@ -268,6 +265,27 @@ router.put("/:id", (req, res) => {
     onError: () => res.sendStatus(500)
   });
 });
+
+/**
+ * @swagger
+ * /car/{id}:
+ *   delete:
+ *     summary: Elimina una carrera por su ID en la base de datos
+ *     tags: [Carreras]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: OK
+ *       404:
+ *         description: Not Found
+ *       500:
+ *         description: Error interno del servidor
+ */
 
 router.delete("/:id", (req, res) => {
   const onSuccess = carrera =>
