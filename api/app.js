@@ -22,52 +22,20 @@ var profesorRouter = require('./routes/profesor');
 var facultadRouter = require('./routes/facultad');
 
 //JSONWEBTOKEN
-app.get("/api", (req, res) => {
-  res.json({
-    mensaje: "hola mundo"
-  })
-})
-
 app.post("/api/login", (req, res) => {
   const user = {
     id: 1,
     nombre: "Pablo Marcelli",
-    email: "profepablomarcelli@email.com"
+    email: "profe.pablomarcelli@email.com"
   }
 
-  jwt.sign({ user }, 'secretKey', { expiresIn: '50s' }, (err, token) => {
+  jwt.sign({ user }, 'secretKey', { expiresIn: '120s' }, (err, token) => {
     res.json({
       token
     })
   });
 })
 
-app.post("/api/home", verifyToken, (req, res) => {
-
-  jwt.verify(req.token, 'secretKey', (error, authData) => {
-    if (error) {
-      res.sendStatus(403);
-    } else {
-      res.json({
-        mensaje: "Bienvenido al home",
-        authData
-      });
-    }
-  });
-})
-
-// Authorization: Bearer <token>
-function verifyToken(req, res, next) {
-  const bearerHeader = req.headers['authorization'];
-
-  if (typeof bearerHeader !== 'undefined') {
-    const bearerToken = bearerHeader.split(" ")[1];
-    req.token = bearerToken;
-    next();
-  } else {
-    res.sendStatus(403);
-  }
-}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

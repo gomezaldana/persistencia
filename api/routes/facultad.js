@@ -1,6 +1,8 @@
 var express = require("express");
 var router = express.Router();
 var models = require("../models");
+const jwt = require('jsonwebtoken');
+const verificacion = require("../verificacionToken");
 
 /**
  * @swagger
@@ -56,18 +58,43 @@ var models = require("../models");
  *         description: Error interno del servidor
  */
 
-router.get("/", (req, res, next) => {
-  const desde = Number(req.query.desde) || 0;
-  const hasta = Number(req.query.hasta) || 5;
-  console.log("Esto es un mensaje para ver en consola");
-  models.facultad
-    .findAll({
-      offset: desde, limit: hasta,
-      attributes: ["id", "nombre", "director"],
-      include:[{as:'mi_carrera', model:models.carrera, attributes: ["id","nombre"]}] //ASOCIACION      
-    })
-    .then(facultad => res.send(facultad))
-    .catch(() => res.sendStatus(500));
+router.get("/", verificacion.verifyToken, (req, res, next) => {
+
+  jwt.verify(req.token, 'secretKey', (error, authData) => {
+    if (error) {
+      res.sendStatus(403);
+    } else {
+      const desde = Number(req.query.desde) || 0;
+      const hasta = Number(req.query.hasta) || 5;
+
+      models.facultad
+        .findAll(
+          {
+            offset: desde,
+            limit: hasta,
+            attributes:
+              [
+                "id",
+                "nombre",
+                "director"
+              ],
+            include:
+              [
+                {
+                  as: 'Carrera-Relacionada',
+                  model: models.carrera,
+                  attributes:
+                    [
+                      "id",
+                      "nombre"
+                    ]
+                }
+              ]
+          })
+        .then(facultad => res.send(facultad))
+        .catch(() => res.sendStatus(500));
+    }
+  });
 });
 
 /**
@@ -114,19 +141,35 @@ router.get("/", (req, res, next) => {
  *         description: Error interno del servidor
  */
 
-router.post("/", (req, res) => {
-  models.facultad
-    .create({ nombre: req.body.nombre, director: req.body.director })
-    .then(facultad => res.status(201).send({ id: facultad.id }))
-    .catch(error => {
-      if (error == "SequelizeUniqueConstraintError: Validation error") {
-        res.status(400).send('Bad request: existe otra facultad con el mismo nombre')
-      }
-      else {
-        console.log(`Error al intentar insertar en la base de datos: ${error}`)
-        res.sendStatus(500)
-      }
-    });
+router.post("/", verificacion.verifyToken, (req, res) => {
+
+  jwt.verify(req.token, 'secretKey', (error, authData) => {
+    if (error) {
+      res.sendStatus(403);
+    } else {
+
+      models.facultad
+        .create(
+          {
+            nombre: req.body.nombre,
+            director: req.body.director
+          })
+        .then(facultad => res.status(201).send(
+          { id: facultad.id }
+        ))
+        .catch(error => {
+          if (error == "SequelizeUniqueConstraintError: Validation error") {
+            res.status(400).send('Bad request: existe otra facultad con el mismo nombre')
+          }
+          else {
+            console.log(`Error al intentar insertar en la base de datos: ${error}`)
+            res.sendStatus(500)
+          }
+        });
+    }
+  });
+
+
 });
 
 /**
@@ -168,19 +211,48 @@ router.post("/", (req, res) => {
 const findFacultad = (id, { onSuccess, onNotFound, onError }) => {
   models.facultad
     .findOne({
-      attributes: ["id", "nombre", "director"],
-      where: { id }
+      attributes:
+        [
+          "id",
+          "nombre",
+          "director"
+        ],
+      include:
+        [
+          {
+            as: 'Carrera-Relacionada',
+            model: models.carrera,
+            attributes:
+              [
+                "id",
+                "nombre"
+              ]
+          }
+        ],
+      where:
+      {
+        id
+      }
     })
     .then(facultad => (facultad ? onSuccess(facultad) : onNotFound()))
     .catch(() => onError());
 };
 
-router.get("/:id", (req, res) => {
-  findFacultad(req.params.id, {
-    onSuccess: facultad => res.send(facultad),
-    onNotFound: () => res.sendStatus(404),
-    onError: () => res.sendStatus(500)
+router.get("/:id", verificacion.verifyToken, (req, res) => {
+
+  jwt.verify(req.token, 'secretKey', (error, authData) => {
+    if (error) {
+      res.sendStatus(403);
+    } else {
+      findFacultad(req.params.id, {
+        onSuccess: facultad => res.send(facultad),
+        onNotFound: () => res.sendStatus(404),
+        onError: () => res.sendStatus(500)
+      });
+    }
   });
+
+
 });
 
 /**
@@ -225,25 +297,40 @@ router.get("/:id", (req, res) => {
  *         type: integer
 */
 
-router.put("/:id", (req, res) => {
-  const onSuccess = facultad =>
-    facultad
-      .update({ nombre: req.body.nombre }, { fields: ["nombre"] }) //CONSULTAR
-      .then(() => res.sendStatus(200))
-      .catch(error => {
-        if (error == "SequelizeUniqueConstraintError: Validation error") {
-          res.status(400).send('Bad request: existe otra facultad con el mismo nombre')
-        }
-        else {
-          console.log(`Error al intentar actualizar la base de datos: ${error}`)
-          res.sendStatus(500)
-        }
+router.put("/:id", verificacion.verifyToken, (req, res) => {
+
+  jwt.verify(req.token, 'secretKey', (error, authData) => {
+    if (error) {
+      res.sendStatus(403);
+    } else {
+      const onSuccess = facultad =>
+        facultad
+          .update(
+            {
+              nombre: req.body.nombre
+            },
+            {
+              fields: ["nombre"]
+            })
+          .then(() => res.sendStatus(200))
+          .catch(error => {
+            if (error == "SequelizeUniqueConstraintError: Validation error") {
+              res.status(400).send('Bad request: existe otra facultad con el mismo nombre')
+            }
+            else {
+              console.log(`Error al intentar actualizar la base de datos: ${error}`)
+              res.sendStatus(500)
+            }
+          });
+      findFacultad(req.params.id, {
+        onSuccess,
+        onNotFound: () => res.sendStatus(404),
+        onError: () => res.sendStatus(500)
       });
-    findFacultad(req.params.id, {
-    onSuccess,
-    onNotFound: () => res.sendStatus(404),
-    onError: () => res.sendStatus(500)
+    }
   });
+
+
 });
 
 /**
@@ -267,17 +354,26 @@ router.put("/:id", (req, res) => {
  *         description: Error interno del servidor
  */
 
-router.delete("/:id", (req, res) => {
-  const onSuccess = facultad =>
-    facultad
-      .destroy()
-      .then(() => res.sendStatus(200))
-      .catch(() => res.sendStatus(500));
-  findFacultad(req.params.id, {
-    onSuccess,
-    onNotFound: () => res.sendStatus(404),
-    onError: () => res.sendStatus(500)
+router.delete("/:id", verificacion.verifyToken, (req, res) => {
+
+  jwt.verify(req.token, 'secretKey', (error, authData) => {
+    if (error) {
+      res.sendStatus(403);
+    } else {
+      const onSuccess = facultad =>
+        facultad
+          .destroy()
+          .then(() => res.sendStatus(200))
+          .catch(() => res.sendStatus(500));
+      findFacultad(req.params.id, {
+        onSuccess,
+        onNotFound: () => res.sendStatus(404),
+        onError: () => res.sendStatus(500)
+      });
+    }
   });
+
+
 });
 
 module.exports = router;

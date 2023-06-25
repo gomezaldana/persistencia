@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
 
   	carrera.hasMany(models.materia,  // Modelo al que pertenece
     {
-      as: 'materia',                 // nombre de mi relacion
+      as: 'Materia-Relacionada',                 // nombre de mi relacion
       foreignKey: 'id_carrera'       // campo con el que voy a igualar 
     }),
     //hola soy un cambio

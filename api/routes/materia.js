@@ -1,6 +1,8 @@
 var express = require("express");
 var router = express.Router();
 var models = require("../models");
+const jwt = require('jsonwebtoken');
+const verificacion = require("../verificacionToken");
 
 /**
  * @swagger
@@ -71,19 +73,56 @@ var models = require("../models");
  *         description: Error interno del servidor
  */
 
-router.get("/", (req, res, next) => {
-  const desde = Number(req.query.desde) || 0;
-  const hasta = Number(req.query.hasta) || 5;
-  console.log("Esto es un mensaje para ver en consola");
-  models.materia
-    .findAll({
-      offset: desde, limit: hasta,
-      attributes: ["id", "nombre","id_carrera"],
-      include:[{as:'Carrera-Relacionada', model:models.carrera, attributes: ["id","nombre"]}, 
-      {as:'Profesor-Relacionado', model:models.profesor, attributes:["id","nombre","apellido"]}]
-    })
-    .then(materia => res.send(materia))
-    .catch(() => res.sendStatus(500));
+router.get("/", verificacion.verifyToken, (req, res, next) => {
+
+  jwt.verify(req.token, 'secretKey', (error, authData) => {
+    if (error) {
+      res.sendStatus(403);
+    } else {
+      const desde = Number(req.query.desde) || 0;
+      const hasta = Number(req.query.hasta) || 5;
+
+      models.materia
+        .findAll(
+          {
+            offset: desde,
+            limit: hasta,
+            attributes:
+              [
+                "id",
+                "nombre",
+                "id_carrera"
+              ],
+            include:
+              [
+                {
+                  as: 'Carrera-Relacionada',
+                  model: models.carrera,
+                  attributes:
+                    [
+                      "id",
+                      "nombre",
+                      "id_facultad"
+                    ]
+                },
+                {
+                  as:
+                    'Profesor-Relacionado',
+                  model: models.profesor,
+                  attributes:
+                    [
+                      "id",
+                      "nombre",
+                      "apellido"
+                    ]
+                }
+              ]
+          })
+        .then(materia => res.send(materia))
+        .catch(() => res.sendStatus(500));
+    }
+  });
+
 });
 
 
@@ -130,25 +169,38 @@ router.get("/", (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
- 
 
-router.post("/", (req, res) => {
-  console.log(req.body.id_carrera);
-  models.materia
-    .create({ 
-        nombre: req.body.nombre,
-        id_carrera: req.body.id_carrera
-    })
-    .then(materia => res.status(201).send({ id: materia.id }))
-    .catch(error => {
-      if (error == "SequelizeUniqueConstraintError: Validation error") {
-        res.status(400).send('Bad request: existe otra materia con el mismo nombre')
-      }
-      else {
-        console.log(`Error al intentar insertar en la base de datos: ${error}`)
-        res.sendStatus(500)
-      }
-    });
+
+router.post("/", verificacion.verifyToken, (req, res) => {
+
+  jwt.verify(req.token, 'secretKey', (error, authData) => {
+    if (error) {
+      res.sendStatus(403);
+    } else {
+
+      models.materia
+        .create(
+          {
+            nombre: req.body.nombre,
+            id_carrera: req.body.id_carrera
+          }
+        )
+        .then(materia => res.status(201).send(
+          { id: materia.id }
+        ))
+        .catch(error => {
+          if (error == "SequelizeUniqueConstraintError: Validation error") {
+            res.status(400).send('Bad request: existe otra materia con el mismo nombre')
+          }
+          else {
+            console.log(`Error al intentar insertar en la base de datos: ${error}`)
+            res.sendStatus(500)
+          }
+        });
+    }
+  });
+
+
 });
 
 /**
@@ -189,20 +241,62 @@ router.post("/", (req, res) => {
 
 const findMateria = (id, { onSuccess, onNotFound, onError }) => {
   models.materia
-    .findOne({
-      attributes: ["id", "nombre", "id_carrera"],
-      where: { id }
-    })
+    .findOne(
+      {
+        attributes:
+          [
+            "id",
+            "nombre",
+            "id_carrera"
+          ],
+        include:
+          [
+            {
+              as: 'Carrera-Relacionada',
+              model: models.carrera,
+              attributes:
+                [
+                  "id",
+                  "nombre",
+                  "id_facultad"
+                ]
+            },
+            {
+              as:
+                'Profesor-Relacionado',
+              model: models.profesor,
+              attributes:
+                [
+                  "id",
+                  "nombre",
+                  "apellido"
+                ]
+            }
+          ],
+        where:
+        {
+          id
+        }
+      })
     .then(materia => (materia ? onSuccess(materia) : onNotFound()))
     .catch(() => onError());
 };
 
-router.get("/:id", (req, res) => {
-  findMateria(req.params.id, {
-    onSuccess: materia => res.send(materia),
-    onNotFound: () => res.sendStatus(404),
-    onError: () => res.sendStatus(500)
+router.get("/:id", verificacion.verifyToken, (req, res) => {
+
+  jwt.verify(req.token, 'secretKey', (error, authData) => {
+    if (error) {
+      res.sendStatus(403);
+    } else {
+      findMateria(req.params.id, {
+        onSuccess: materia => res.send(materia),
+        onNotFound: () => res.sendStatus(404),
+        onError: () => res.sendStatus(500)
+      });
+    }
   });
+
+
 });
 
 /**
@@ -247,25 +341,40 @@ router.get("/:id", (req, res) => {
  *         type: integer
 */
 
-router.put("/:id", (req, res) => {
-  const onSuccess = materia =>
-  materia
-      .update({ nombre: req.body.nombre }, { fields: ["nombre"] })
-      .then(() => res.sendStatus(200))
-      .catch(error => {
-        if (error == "SequelizeUniqueConstraintError: Validation error") {
-          res.status(400).send('Bad request: existe otra materia con el mismo nombre')
-        }
-        else {
-          console.log(`Error al intentar actualizar la base de datos: ${error}`)
-          res.sendStatus(500)
-        }
+router.put("/:id", verificacion.verifyToken, (req, res) => {
+
+  jwt.verify(req.token, 'secretKey', (error, authData) => {
+    if (error) {
+      res.sendStatus(403);
+    } else {
+      const onSuccess = materia =>
+        materia
+          .update(
+            {
+              nombre: req.body.nombre
+            },
+            {
+              fields: ["nombre"]
+            })
+          .then(() => res.sendStatus(200))
+          .catch(error => {
+            if (error == "SequelizeUniqueConstraintError: Validation error") {
+              res.status(400).send('Bad request: existe otra materia con el mismo nombre')
+            }
+            else {
+              console.log(`Error al intentar actualizar la base de datos: ${error}`)
+              res.sendStatus(500)
+            }
+          });
+      findMateria(req.params.id, {
+        onSuccess,
+        onNotFound: () => res.sendStatus(404),
+        onError: () => res.sendStatus(500)
       });
-    findMateria(req.params.id, {
-    onSuccess,
-    onNotFound: () => res.sendStatus(404),
-    onError: () => res.sendStatus(500)
+    }
   });
+
+
 });
 
 /**
@@ -289,17 +398,26 @@ router.put("/:id", (req, res) => {
  *         description: Error interno del servidor
  */
 
-router.delete("/:id", (req, res) => {
-  const onSuccess = materia =>
-  materia
-      .destroy()
-      .then(() => res.sendStatus(200))
-      .catch(() => res.sendStatus(500));
-  findMateria(req.params.id, {
-    onSuccess,
-    onNotFound: () => res.sendStatus(404),
-    onError: () => res.sendStatus(500)
+router.delete("/:id", verificacion.verifyToken, (req, res) => {
+
+  jwt.verify(req.token, 'secretKey', (error, authData) => {
+    if (error) {
+      res.sendStatus(403);
+    } else {
+      const onSuccess = materia =>
+        materia
+          .destroy()
+          .then(() => res.sendStatus(200))
+          .catch(() => res.sendStatus(500));
+      findMateria(req.params.id, {
+        onSuccess,
+        onNotFound: () => res.sendStatus(404),
+        onError: () => res.sendStatus(500)
+      });
+    }
   });
+
+
 });
 
 module.exports = router;
