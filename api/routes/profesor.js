@@ -46,7 +46,7 @@ const verificacion = require("../verificacionToken");
  *                   id_materia:
  *                     type: integer
  *                     description: id de la materia a la que esta relacionado
- *                   materia:
+ *                   Materia-Relacionada:
  *                     type: object
  *                     properties:
  *                       id:
@@ -207,6 +207,15 @@ router.post("/", verificacion.verifyToken, (req, res) => {
  *                 id_materia:
  *                   type: string
  *                   description: ID de la materia asociada al profesor buscado
+ *                 Materia-Relacionada:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: ID de la materia
+ *                     nombre:
+ *                       type: string
+ *                       description: Nombre de la materia
  *       404:
  *         description: Not Found
  *       500:

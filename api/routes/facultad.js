@@ -43,7 +43,7 @@ const verificacion = require("../verificacionToken");
  *                   director:
  *                     type: string
  *                     description: Director de la facultad
- *                   mi_carrera:
+ *                   Carrera-Relacionada:
  *                     type: array
  *                     items:
  *                       type: object
@@ -202,6 +202,17 @@ router.post("/", verificacion.verifyToken, (req, res) => {
  *                 director:
  *                   type: string
  *                   description: director de la facultad
+ *                 Carrera-Relacionada:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: ID de la carrera asociada
+ *                       nombre:
+ *                         type: string
+ *                         description: Nombre de la carrera asociada
  *       404:
  *         description: Not Found
  *       500:

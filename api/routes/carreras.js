@@ -68,9 +68,6 @@ const verificacion = require("../verificacionToken");
  *                         nombre:
  *                           type: string
  *                           description: Nombre de la materia
- *                         id_facultad:
- *                           type: integer
- *                           description: ID de la facultad de la materia
  *       500:
  *         description: Error interno del servidor
  */
@@ -229,6 +226,29 @@ router.post("/", verificacion.verifyToken, (req, res) => {
  *                 id_facultad:
  *                   type: string
  *                   description: ID de la facultad asociada a la carrera buscada
+ *                 Facultad-Relacionada:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: ID de la facultad
+ *                     nombre:
+ *                       type: string
+ *                       description: Nombre de la facultad
+ *                     director:
+ *                       type: string
+ *                       description: Director de la facultad
+ *                 Materia:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: ID de la materia
+ *                       nombre:
+ *                         type: string
+ *                         description: Nombre de la materia
  *       404:
  *         description: Not Found
  *       500:

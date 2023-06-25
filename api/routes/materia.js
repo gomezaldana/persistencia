@@ -52,9 +52,9 @@ const verificacion = require("../verificacionToken");
  *                       nombre:
  *                         type: string
  *                         description: Nombre de la carrera
- *                       director:
- *                         type: string
- *                         description: Director de la facultad //falta id y director
+ *                       id_facultad:
+ *                         type: integer
+ *                         description: ID de la facultad a la que esta relacionada la carrera
  *                   Profesor-Relacionado:
  *                     type: array
  *                     items:
@@ -68,7 +68,7 @@ const verificacion = require("../verificacionToken");
  *                           description: Nombre del profesor
  *                         apellido:
  *                           type: string
- *                           description: Apellido del profesor /7falta id materia
+ *                           description: Apellido del profesor
  *       500:
  *         description: Error interno del servidor
  */
@@ -233,6 +233,32 @@ router.post("/", verificacion.verifyToken, (req, res) => {
  *                 id_carrera:
  *                   type: string
  *                   description: ID de la id_carrera asociada a la materia buscada
+ *                 Carrera-Relacionada:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: ID de la carrera
+ *                     nombre:
+ *                       type: string
+ *                       description: Nombre de la carrera
+ *                     id_facultad:
+ *                       type: integer
+ *                       description: ID de la facultad a la que esta relacionada la carrera
+ *                 Profesor-Relacionado:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: ID del profesor
+ *                       nombre:
+ *                         type: string
+ *                         description: Nombre del profesor
+ *                       apellido:
+ *                         type: string
+ *                         description: Apellido del profesor /7falta id materia
  *       404:
  *         description: Not Found
  *       500:
