@@ -155,15 +155,7 @@ router.get("/", verificacion.verifyToken, (req, res, next) => {
  *                   type: integer
  *                   description: ID de la carrera creada
  *       400:
- *         description: Solicitud incorrecta
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Mensaje de error
+ *         description: Bad request
  *       500:
  *         description: Error interno del servidor
  */
@@ -334,15 +326,7 @@ router.get("/:id", verificacion.verifyToken, (req, res) => {
  *       200:
  *         description: OK
  *       400:
- *         description: Solicitud incorrecta
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Mensaje de error
+ *         description: Bad request
  *       404:
  *         description: Not found
  *       500:
