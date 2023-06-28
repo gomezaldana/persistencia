@@ -416,6 +416,4 @@ router.delete("/:id", verificacion.verifyToken, (req, res) => {
   });
 });
 
-
-
 module.exports = router;
