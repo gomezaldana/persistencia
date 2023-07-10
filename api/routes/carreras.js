@@ -5,6 +5,7 @@ var sw = require("../config/configSwagger");
 const jwt = require('jsonwebtoken');
 const app = require("../app");
 const verificacion = require("../verificacionToken");
+const secretKey = process.env.SECRET_KEY;
 
 /**
  * @swagger
@@ -74,7 +75,7 @@ const verificacion = require("../verificacionToken");
 
 router.get("/", verificacion.verifyToken, (req, res, next) => {
 
-  jwt.verify(req.token, 'secretKey', (error, authData) => {
+  jwt.verify(req.token, secretKey, (error, authData) => {
     if (error) {
       res.sendStatus(403);
     } else {
@@ -162,7 +163,7 @@ router.get("/", verificacion.verifyToken, (req, res, next) => {
 
 router.post("/", verificacion.verifyToken, (req, res) => {
 
-  jwt.verify(req.token, 'secretKey', (error, authData) => {
+  jwt.verify(req.token, secretKey, (error, authData) => {
     if (error) {
       res.sendStatus(403);
     } else {
@@ -289,7 +290,7 @@ const findCarrera = (id, { onSuccess, onNotFound, onError }) => {
 
 router.get("/:id", verificacion.verifyToken, (req, res) => {
 
-  jwt.verify(req.token, 'secretKey', (error, authData) => {
+  jwt.verify(req.token, secretKey, (error, authData) => {
     if (error) {
       res.sendStatus(403);
     } else {
@@ -341,7 +342,7 @@ router.get("/:id", verificacion.verifyToken, (req, res) => {
 
 router.put("/:id", verificacion.verifyToken, (req, res) => {
 
-  jwt.verify(req.token, 'secretKey', (error, authData) => {
+  jwt.verify(req.token, secretKey, (error, authData) => {
     if (error) {
       res.sendStatus(403);
     } else {
@@ -397,7 +398,7 @@ router.put("/:id", verificacion.verifyToken, (req, res) => {
 
 router.delete("/:id", verificacion.verifyToken, (req, res) => {
 
-  jwt.verify(req.token, 'secretKey', (error, authData) => {
+  jwt.verify(req.token, secretKey, (error, authData) => {
     if (error) {
       res.sendStatus(403);
     } else {

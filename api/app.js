@@ -1,10 +1,11 @@
 var createError = require('http-errors');
 var express = require('express');
+
+require('dotenv').config();
+
 //swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/configSwagger');
-//jwt
-const jwt = require('jsonwebtoken');
 
 //cambio
 var path = require('path');
@@ -21,21 +22,7 @@ var materiaRouter = require('./routes/materia');
 var profesorRouter = require('./routes/profesor');
 var facultadRouter = require('./routes/facultad');
 
-//JSONWEBTOKEN
-app.post("/api/login", (req, res) => {
-  const user = {
-    id: 1,
-    nombre: "Pablo Marcelli",
-    email: "profe.pablomarcelli@email.com"
-  }
-
-  jwt.sign({ user }, 'secretKey', { expiresIn: '120s' }, (err, token) => {
-    res.json({
-      token
-    })
-  });
-})
-
+const login = require('./login');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -51,6 +38,8 @@ app.use('/mat', materiaRouter);
 app.use('/car', carrerasRouter);
 app.use('/pro', profesorRouter);
 app.use('/fac', facultadRouter);
+
+app.use(login);
 
 
 // catch 404 and forward to error handler
