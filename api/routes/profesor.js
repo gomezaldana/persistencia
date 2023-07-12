@@ -23,6 +23,13 @@ const secretKey = process.env.SECRET_KEY;
  *         schema:
  *           type: integer
  *           default: 5
+ *       - name: Authorization
+ *         in: header
+ *         description: Token de autenticación
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: bearer
  *     tags:
  *       - Profesores
  *     responses:
@@ -56,49 +63,32 @@ const secretKey = process.env.SECRET_KEY;
  *                       nombre:
  *                         type: string
  *                         description: Nombre de la materia
+ *       403:
+ *         description: Acceso no autorizado
  *       500:
  *         description: Error interno del servidor
  */
-
 router.get("/", verificacion.verifyToken, (req, res, next) => {
+  const desde = Number(req.query.desde) || 0;
+  const hasta = Number(req.query.hasta) || 5;
 
-  jwt.verify(req.token, secretKey, (error, authData) => {
-    if (error) {
-      res.sendStatus(403);
-    } else {
-      const desde = Number(req.query.desde) || 0;
-      const hasta = Number(req.query.hasta) || 5;
-
-      models.profesor
-        .findAll(
-          {
-            offset: desde,
-            limit: hasta,
-            attributes:
-              [
-                "id",
-                "nombre",
-                "apellido",
-                "id_materia"
-              ],
-            include:
-              [
-                {
-                  as: 'Materia-Relacionada',
-                  model: models.materia,
-                  attributes:
-                    [
-                      "id",
-                      "nombre"
-                    ]
-                }
-              ]
-          })
-        .then(profesor => res.send(profesor))
-        .catch(() => res.sendStatus(500));
-    }
-  });
+  models.profesor
+    .findAll({
+      offset: desde,
+      limit: hasta,
+      attributes: ["id", "nombre", "apellido", "id_materia"],
+      include: [
+        {
+          as: 'Materia-Relacionada',
+          model: models.materia,
+          attributes: ["id", "nombre"]
+        }
+      ]
+    })
+    .then(profesor => res.send(profesor))
+    .catch(() => res.sendStatus(500));
 });
+
 
 /**
  * @swagger
